@@ -8,7 +8,7 @@ public class MainController {
 
     @GetMapping("/")
     public String index() {
-        return "Hello World!";
+        return "Spring Boot Github Actions!";
     }
 
     @GetMapping("/hello")
