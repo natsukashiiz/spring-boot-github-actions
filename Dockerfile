@@ -1,14 +1,14 @@
 # First stage, build the custom JRE
-FROM eclipse-temurin:17-jdk-alpine AS jre-builder
+FROM openjdk:17-jdk-slim AS jre-builder
 
 # Install binutils, required by jlink
-RUN apk update &&  \
-    apk add binutils
+RUN apt-get update -y &&  \
+    apt-get install -y binutils
 
 # Build small JRE image
 RUN $JAVA_HOME/bin/jlink \
          --verbose \
-         --add-modules ALL-MODULE-PATH \
+         --add-modules java.base,java.compiler,java.desktop,java.instrument,java.management,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.security.jgss,java.sql,jdk.jfr,jdk.unsupported \
          --strip-debug \
          --no-man-pages \
          --no-header-files \
@@ -27,7 +27,7 @@ COPY --from=jre-builder /optimized-jdk-17 $JAVA_HOME
 ARG APPLICATION_USER=spring
 
 # Create a user to run the application, don't run as root
-RUN addgroup --system $APPLICATION_USER && adduser --system $APPLICATION_USER --ingroup $APPLICATION_USER
+RUN addgroup --system $APPLICATION_USER &&  adduser --system $APPLICATION_USER --ingroup $APPLICATION_USER
 
 # Create the application directory
 RUN mkdir /app && chown -R $APPLICATION_USER /app
